@@ -20,21 +20,24 @@ Instead of hunting down individual MCP servers across GitHub, this single catalo
 - **One config source** — all environment variables documented in a single `.env.example`
 - **Catalog-ready** — `unraid-catalog.yml` works with the Unraid MCP plugin for one-click activation
 
-## Quick Start
+## Quick Start — Deploy via MCP Gateway
+
+Deploy these servers through [mcp-gateway-unraid](https://github.com/wildfirebill-unraid/mcp-gateway-unraid) — an MCP gateway that spawns each server as an isolated Docker container on your Unraid box.
 
 ```bash
-# 1. Configure your environment
-cp .env.example .env
-# Uncomment the variables for the servers you need
+# 1. Install the gateway (see gateway repo for details)
+# 2. Mount unraid-catalog.yml into the gateway container
+# 3. Set which servers to enable:
+GATEWAY_SERVERS=filesystem-mcp,sqlite-mcp,postgresql-mcp,github-mcp
 
-# 2. Build a server
-docker build -t unraid-mcp/filesystem-mcp servers/filesystem-mcp
-
-# 3. Run it (example)
-docker run --rm -i unraid-mcp/filesystem-mcp
+# 4. Connect any MCP client (Claude Desktop, VS Code, Cursor)
+#    to http://<unraid-ip>:8811/mcp with your auth token
 ```
 
-Or deploy through the Unraid MCP plugin using `unraid-catalog.yml`.
+> **You don't add servers one at a time.** The entire catalog (all 106
+> servers) is registered at once. Pick only the ones you actually need
+> via `GATEWAY_SERVERS` — the gateway only spins up containers for those.
+> Enabling all 106 at once will exhaust your system resources.
 
 ## Server Catalog
 
@@ -104,10 +107,15 @@ servers/               # 106 individual server directories
 ├── github-mcp/
 └── ...
 
-unraid-catalog.yml     # Unraid plugin catalog definition
+unraid-catalog.yml     # MCP Gateway catalog — all 106 servers defined here
 .env.example           # All configurable environment variables
 docker-compose.yml     # Docker Compose orchestration
 ```
+
+## Gateway
+
+The [mcp-gateway-unraid](https://github.com/wildfirebill-unraid/mcp-gateway-unraid)
+project runs the gateway that loads this catalog. Pass `--catalog=/path/to/unraid-catalog.yml` to register all 106 servers, then use `GATEWAY_SERVERS` to enable a subset.
 
 ## Adding a New Server
 
