@@ -1,0 +1,60 @@
+name: Make Packages Public
+
+on:
+  workflow_dispatch:
+    inputs:
+      ghcr_owner:
+        description: 'ghcr.io owner (user or org name)'
+        required: true
+        default: 'wildfirebill-unraid'
+
+permissions:
+  packages: write
+
+jobs:
+  make-public:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make all container packages public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OWNER="${{ inputs.ghcr_owner }}"
+          # Try org endpoint first, fall back to user endpoint
+          if gh api "/orgs/$OWNER" &>/dev/null; then
+            API_PREFIX="/orgs/$OWNER"
+          else
+            API_PREFIX="/user"
+          fi
+
+          # Extract all server names from the catalog YAML
+          servers=$(grep -oP '^\s+\K[\w-]+(?=:)' unraid-catalog.yml | sort -u)
+
+          total=$(echo "$servers" | wc -l)
+          count=0
+          failed=""
+
+          for server in $servers; do
+            count=$((count + 1))
+            # URL-encode the full package name
+            pkg_name="ghcr.io%2F${OWNER}%2Funraid-mcp-servers%2F${server}"
+            printf "[%d/%d] Making %s public ... " "$count" "$total" "$server"
+
+            if gh api --method PATCH \
+              "${API_PREFIX}/packages/container/${pkg_name}/visibility" \
+              -f visibility=public --silent 2>/dev/null; then
+              echo "OK"
+            else
+              echo "FAILED"
+              failed="$failed $server"
+            fi
+          done
+
+          echo ""
+          if [ -n "$failed" ]; then
+            echo "Failed packages:$failed"
+            exit 1
+          fi
+          echo "All $total packages made public"

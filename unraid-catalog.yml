@@ -1,7 +1,7 @@
 version: 3
 name: unraid-mcp
 displayName: Unraid MCP Toolset
-servers:
+registry:
   filesystem-mcp:
     description: "Read, write, search, and browse files on Unraid shares. Sandboxed to a configurable path."
     title: "Filesystem MCP"

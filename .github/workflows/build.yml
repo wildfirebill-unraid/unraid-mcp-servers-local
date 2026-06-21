@@ -65,3 +65,17 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Make package public
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pkg_name="ghcr.io%2F$(echo '${{ github.repository }}' | sed 's|/|%2F|g')%2F${{ matrix.server }}"
+          echo "Making ${{ matrix.server }} public ..."
+          gh api --method PATCH \
+            "/orgs/${{ github.repository_owner }}/packages/container/${pkg_name}/visibility" \
+            -f visibility=public --silent 2>/dev/null || \
+          gh api --method PATCH \
+            "/user/packages/container/${pkg_name}/visibility" \
+            -f visibility=public --silent
