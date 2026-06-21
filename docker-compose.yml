@@ -1,0 +1,302 @@
+version: "3.8"
+
+services:
+  # === CORE SERVICES ===
+  filesystem-mcp:
+    build: ./servers/filesystem-mcp
+    image: unraid-mcp/filesystem-mcp:latest
+    container_name: unraid-mcp-filesystem
+    volumes:
+      - /mnt:/data:ro
+    environment:
+      - FILESYSTEM_ALLOWED_PATH=/data
+    stdin_open: true
+    tty: true
+
+  system-info-mcp:
+    build: ./servers/system-info-mcp
+    image: unraid-mcp/system-info-mcp:latest
+    container_name: unraid-mcp-system-info
+    privileged: true
+    pid: "host"
+    stdin_open: true
+    tty: true
+
+  sqlite-mcp:
+    build: ./servers/sqlite-mcp
+    image: unraid-mcp/sqlite-mcp:latest
+    container_name: unraid-mcp-sqlite
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - SQLITE_DB_DIR=/data
+    stdin_open: true
+    tty: true
+
+  docker-mcp:
+    build: ./servers/docker-mcp
+    image: unraid-mcp/docker-mcp:latest
+    container_name: unraid-mcp-docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    stdin_open: true
+    tty: true
+
+  check-host-mcp:
+    build: ./servers/check-host-mcp
+    image: unraid-mcp/check-host-mcp:latest
+    container_name: unraid-mcp-check-host
+    stdin_open: true
+    tty: true
+
+  text-utility-mcp:
+    build: ./servers/text-utility-mcp
+    image: unraid-mcp/text-utility-mcp:latest
+    container_name: unraid-mcp-text-utility
+    stdin_open: true
+    tty: true
+
+  # === MEDIA ===
+  media-info-mcp:
+    build: ./servers/media-info-mcp
+    image: unraid-mcp/media-info-mcp:latest
+    container_name: unraid-mcp-media-info
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - MEDIA_INFO_PATH=/data
+    stdin_open: true
+    tty: true
+
+  media-convert-mcp:
+    build: ./servers/media-convert-mcp
+    image: unraid-mcp/media-convert-mcp:latest
+    container_name: unraid-mcp-media-convert
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - MEDIA_CONVERT_PATH=/data
+    stdin_open: true
+    tty: true
+
+  # === FILES & ARCHIVE ===
+  archive-mcp:
+    build: ./servers/archive-mcp
+    image: unraid-mcp/archive-mcp:latest
+    container_name: unraid-mcp-archive
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - ARCHIVE_PATH=/data
+    stdin_open: true
+    tty: true
+
+  backup-mcp:
+    build: ./servers/backup-mcp
+    image: unraid-mcp/backup-mcp:latest
+    container_name: unraid-mcp-backup
+    volumes:
+      - /mnt/user:/data
+      - /mnt/user/backups:/backup
+    environment:
+      - BACKUP_SOURCE=/data
+      - BACKUP_DEST=/backup
+    stdin_open: true
+    tty: true
+
+  finder-mcp:
+    build: ./servers/finder-mcp
+    image: unraid-mcp/finder-mcp:latest
+    container_name: unraid-mcp-finder
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - FINDER_PATH=/data
+    stdin_open: true
+    tty: true
+
+  diff-mcp:
+    build: ./servers/diff-mcp
+    image: unraid-mcp/diff-mcp:latest
+    container_name: unraid-mcp-diff
+    volumes:
+      - /mnt/user:/data
+    stdin_open: true
+    tty: true
+
+  # === SYSTEM ===
+  process-mcp:
+    build: ./servers/process-mcp
+    image: unraid-mcp/process-mcp:latest
+    container_name: unraid-mcp-process
+    privileged: true
+    pid: "host"
+    stdin_open: true
+    tty: true
+
+  log-mcp:
+    build: ./servers/log-mcp
+    image: unraid-mcp/log-mcp:latest
+    container_name: unraid-mcp-log
+    volumes:
+      - /var/log:/var/log:ro
+      - /mnt/user:/data
+    environment:
+      - LOG_PATH=/data
+    stdin_open: true
+    tty: true
+
+  service-mcp:
+    build: ./servers/service-mcp
+    image: unraid-mcp/service-mcp:latest
+    container_name: unraid-mcp-service
+    privileged: true
+    volumes:
+      - /run/dbus:/run/dbus:ro
+    stdin_open: true
+    tty: true
+
+  # === DATA FORMATS ===
+  yaml-mcp:
+    build: ./servers/yaml-mcp
+    image: unraid-mcp/yaml-mcp:latest
+    container_name: unraid-mcp-yaml
+    stdin_open: true
+    tty: true
+
+  xml-mcp:
+    build: ./servers/xml-mcp
+    image: unraid-mcp/xml-mcp:latest
+    container_name: unraid-mcp-xml
+    stdin_open: true
+    tty: true
+
+  csv-mcp:
+    build: ./servers/csv-mcp
+    image: unraid-mcp/csv-mcp:latest
+    container_name: unraid-mcp-csv
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - CSV_PATH=/data
+    stdin_open: true
+    tty: true
+
+  template-mcp:
+    build: ./servers/template-mcp
+    image: unraid-mcp/template-mcp:latest
+    container_name: unraid-mcp-template
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - TEMPLATE_PATH=/data
+    stdin_open: true
+    tty: true
+
+  # === MEDIA / IMAGE ===
+  image-mcp:
+    build: ./servers/image-mcp
+    image: unraid-mcp/image-mcp:latest
+    container_name: unraid-mcp-image
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - IMAGE_PATH=/data
+    stdin_open: true
+    tty: true
+
+  encoding-mcp:
+    build: ./servers/encoding-mcp
+    image: unraid-mcp/encoding-mcp:latest
+    container_name: unraid-mcp-encoding
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - ENCODING_PATH=/data
+    stdin_open: true
+    tty: true
+
+  markdown-mcp:
+    build: ./servers/markdown-mcp
+    image: unraid-mcp/markdown-mcp:latest
+    container_name: unraid-mcp-markdown
+    stdin_open: true
+    tty: true
+
+  # === DEV TOOLS ===
+  git-mcp:
+    build: ./servers/git-mcp
+    image: unraid-mcp/git-mcp:latest
+    container_name: unraid-mcp-git
+    volumes:
+      - /mnt/user:/data
+    environment:
+      - GIT_REPO_PATH=/data
+    stdin_open: true
+    tty: true
+
+  ssl-mcp:
+    build: ./servers/ssl-mcp
+    image: unraid-mcp/ssl-mcp:latest
+    container_name: unraid-mcp-ssl
+    volumes:
+      - /mnt/user:/data
+    stdin_open: true
+    tty: true
+
+  # === UTILITIES ===
+  cron-mcp:
+    build: ./servers/cron-mcp
+    image: unraid-mcp/cron-mcp:latest
+    container_name: unraid-mcp-cron
+    stdin_open: true
+    tty: true
+
+  password-mcp:
+    build: ./servers/password-mcp
+    image: unraid-mcp/password-mcp:latest
+    container_name: unraid-mcp-password
+    stdin_open: true
+    tty: true
+
+  uuid-mcp:
+    build: ./servers/uuid-mcp
+    image: unraid-mcp/uuid-mcp:latest
+    container_name: unraid-mcp-uuid
+    stdin_open: true
+    tty: true
+
+  sort-mcp:
+    build: ./servers/sort-mcp
+    image: unraid-mcp/sort-mcp:latest
+    container_name: unraid-mcp-sort
+    stdin_open: true
+    tty: true
+
+  color-mcp:
+    build: ./servers/color-mcp
+    image: unraid-mcp/color-mcp:latest
+    container_name: unraid-mcp-color
+    stdin_open: true
+    tty: true
+
+  ipcalc-mcp:
+    build: ./servers/ipcalc-mcp
+    image: unraid-mcp/ipcalc-mcp:latest
+    container_name: unraid-mcp-ipcalc
+    stdin_open: true
+    tty: true
+
+  mempalace-mcp:
+    build: ./servers/mempalace-mcp
+    image: unraid-mcp/mempalace-mcp:latest
+    container_name: unraid-mcp-mempalace
+    volumes:
+      - mempalace-data:/data
+    environment:
+      - MEMPALACE_PALACE_PATH=/data/palace
+    stdin_open: true
+    tty: true
+
+volumes:
+  mempalace-data:

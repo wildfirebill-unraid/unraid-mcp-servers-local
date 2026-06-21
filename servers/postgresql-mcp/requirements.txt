@@ -1,0 +1,4 @@
+mcp
+pydantic
+anyio
+psycopg2-binary

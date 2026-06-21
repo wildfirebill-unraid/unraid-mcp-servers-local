@@ -1,0 +1,550 @@
+version: 3
+name: unraid-mcp
+displayName: Unraid MCP Toolset
+servers:
+  filesystem-mcp:
+    description: "Read, write, search, and browse files on Unraid shares. Sandboxed to a configurable path."
+    title: "Filesystem MCP"
+    type: "server"
+    image: "unraid-mcp/filesystem-mcp:latest"
+    env:
+      - name: "FILESYSTEM_ALLOWED_PATH"
+        value: "{{filesystem-mcp.allowed_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "filesystem-mcp"
+        description: "Filesystem server configuration"
+        type: "object"
+        properties:
+          allowed_path:
+            type: "string"
+            description: "Root path the server can access (e.g. /mnt/user)"
+            default: "/data"
+        required: []
+
+  system-info-mcp:
+    description: "Get system information: CPU, memory, disk usage, network stats, running processes, and uptime."
+    title: "System Info MCP"
+    type: "server"
+    image: "unraid-mcp/system-info-mcp:latest"
+    env:
+      - name: "FILESYSTEM_ALLOWED_PATH"
+        value: "/tmp"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "system-info-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  sqlite-mcp:
+    description: "Query, create, and manage SQLite databases. Supports SELECT, INSERT, UPDATE, DELETE, DDL."
+    title: "SQLite MCP"
+    type: "server"
+    image: "unraid-mcp/sqlite-mcp:latest"
+    env:
+      - name: "SQLITE_DB_DIR"
+        value: "{{sqlite-mcp.db_dir}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "sqlite-mcp"
+        description: "SQLite server configuration"
+        type: "object"
+        properties:
+          db_dir:
+            type: "string"
+            description: "Directory containing .db files (e.g. /mnt/user/appdata)"
+            default: "/data"
+        required: []
+
+  docker-mcp:
+    description: "List, inspect, start, stop, restart Docker containers and view logs. Also lists images with sizes."
+    title: "Docker MCP"
+    type: "server"
+    image: "unraid-mcp/docker-mcp:latest"
+    env:
+      - name: "DOCKER_HOST"
+        value: "unix:///var/run/docker.sock"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "docker-mcp"
+        description: "Docker server configuration"
+        type: "object"
+        properties: {}
+        required: []
+
+  check-host-mcp:
+    description: "Network diagnostics: DNS lookup, ping, TCP port check, HTTP status check, reverse DNS, and WHOIS."
+    title: "Check Host MCP"
+    type: "server"
+    image: "unraid-mcp/check-host-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "check-host-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  text-utility-mcp:
+    description: "Text processing tools: regex, JSON validate/format/minify, base64, hashing (md5/sha1/sha256/sha512), URL encode/decode, HTML encode/decode, word count, CSV to JSON."
+    title: "Text Utility MCP"
+    type: "server"
+    image: "unraid-mcp/text-utility-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+        - name: "text-utility-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  # === MEDIA ===
+  media-info-mcp:
+    description: "Get media file metadata: codec, resolution, bitrate, duration, framerate, audio/subtitle streams using ffprobe."
+    title: "Media Info MCP"
+    type: "server"
+    image: "unraid-mcp/media-info-mcp:latest"
+    env:
+      - name: "MEDIA_INFO_PATH"
+        value: "{{media-info-mcp.media_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "media-info-mcp"
+        description: "Media info server configuration"
+        type: "object"
+        properties:
+          media_path:
+            type: "string"
+            description: "Root path for media files (e.g. /mnt/user/media)"
+            default: "/data"
+        required: []
+
+  media-convert-mcp:
+    description: "Transcode video, extract audio, generate thumbnails, concatenate clips, and compress media using ffmpeg."
+    title: "Media Convert MCP"
+    type: "server"
+    image: "unraid-mcp/media-convert-mcp:latest"
+    env:
+      - name: "MEDIA_CONVERT_PATH"
+        value: "{{media-convert-mcp.media_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "media-convert-mcp"
+        description: "Media convert server configuration"
+        type: "object"
+        properties:
+          media_path:
+            type: "string"
+            description: "Root path for media files"
+            default: "/data"
+        required: []
+
+  # === FILES & ARCHIVE ===
+  archive-mcp:
+    description: "Create and extract archives (zip, tar.gz, tar.bz2, 7z), compress and decompress files."
+    title: "Archive MCP"
+    type: "server"
+    image: "unraid-mcp/archive-mcp:latest"
+    env:
+      - name: "ARCHIVE_PATH"
+        value: "{{archive-mcp.archive_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "archive-mcp"
+        description: "Archive server configuration"
+        type: "object"
+        properties:
+          archive_path:
+            type: "string"
+            description: "Root path for archive operations"
+            default: "/data"
+        required: []
+
+  backup-mcp:
+    description: "Rsync-based file backup, rotation, incremental copy, and backup statistics."
+    title: "Backup MCP"
+    type: "server"
+    image: "unraid-mcp/backup-mcp:latest"
+    env:
+      - name: "BACKUP_SOURCE"
+        value: "{{backup-mcp.source}}"
+      - name: "BACKUP_DEST"
+        value: "{{backup-mcp.dest}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "backup-mcp"
+        description: "Backup server configuration"
+        type: "object"
+        properties:
+          source:
+            type: "string"
+            description: "Source directory to back up"
+            default: "/data"
+          dest:
+            type: "string"
+            description: "Destination backup directory"
+            default: "/backup"
+        required: []
+
+  finder-mcp:
+    description: "Advanced file search: by name glob, size range, modification age, file content, duplicates, and file type."
+    title: "Finder MCP"
+    type: "server"
+    image: "unraid-mcp/finder-mcp:latest"
+    env:
+      - name: "FINDER_PATH"
+        value: "{{finder-mcp.search_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "finder-mcp"
+        description: "Finder server configuration"
+        type: "object"
+        properties:
+          search_path:
+            type: "string"
+            description: "Root path for file searches"
+            default: "/data"
+        required: []
+
+  diff-mcp:
+    description: "Compare text strings, files, and directories with unified diff output. Apply patches."
+    title: "Diff MCP"
+    type: "server"
+    image: "unraid-mcp/diff-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "diff-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  # === SYSTEM ===
+  process-mcp:
+    description: "List, find, and kill processes. View process trees and detailed stats for any PID."
+    title: "Process MCP"
+    type: "server"
+    image: "unraid-mcp/process-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "process-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  log-mcp:
+    description: "Tail, search, and analyze log files. Count log levels, watch for patterns, find log files."
+    title: "Log MCP"
+    type: "server"
+    image: "unraid-mcp/log-mcp:latest"
+    env:
+      - name: "LOG_PATH"
+        value: "{{log-mcp.log_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "log-mcp"
+        description: "Log server configuration"
+        type: "object"
+        properties:
+          log_path:
+            type: "string"
+            description: "Root path for log files"
+            default: "/data"
+        required: []
+
+  service-mcp:
+    description: "Manage systemd services: list, status, start, stop, restart, enable, disable."
+    title: "Service MCP"
+    type: "server"
+    image: "unraid-mcp/service-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "service-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  # === DATA FORMATS ===
+  yaml-mcp:
+    description: "Parse, validate, dump, and convert YAML to/from JSON. Merge multiple YAML files."
+    title: "YAML MCP"
+    type: "server"
+    image: "unraid-mcp/yaml-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "yaml-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  xml-mcp:
+    description: "Parse, query with XPath, validate against XSD, and format XML documents."
+    title: "XML MCP"
+    type: "server"
+    image: "unraid-mcp/xml-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "xml-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  csv-mcp:
+    description: "Query, filter, sort, merge, join, and aggregate CSV files with statistics."
+    title: "CSV MCP"
+    type: "server"
+    image: "unraid-mcp/csv-mcp:latest"
+    env:
+      - name: "CSV_PATH"
+        value: "{{csv-mcp.csv_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "csv-mcp"
+        description: "CSV server configuration"
+        type: "object"
+        properties:
+          csv_path:
+            type: "string"
+            description: "Root path for CSV files"
+            default: "/data"
+        required: []
+
+  template-mcp:
+    description: "Render Jinja2 templates with variables, extract template variables, validate syntax."
+    title: "Template MCP"
+    type: "server"
+    image: "unraid-mcp/template-mcp:latest"
+    env:
+      - name: "TEMPLATE_PATH"
+        value: "{{template-mcp.template_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "template-mcp"
+        description: "Template server configuration"
+        type: "object"
+        properties:
+          template_path:
+            type: "string"
+            description: "Root path for template files"
+            default: "/data"
+        required: []
+
+  # === MEDIA / IMAGE ===
+  image-mcp:
+    description: "Get image info, resize, convert format (jpeg/png/webp/gif), create thumbnails using Pillow."
+    title: "Image MCP"
+    type: "server"
+    image: "unraid-mcp/image-mcp:latest"
+    env:
+      - name: "IMAGE_PATH"
+        value: "{{image-mcp.image_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "image-mcp"
+        description: "Image server configuration"
+        type: "object"
+        properties:
+          image_path:
+            type: "string"
+            description: "Root path for image files"
+            default: "/data"
+        required: []
+
+  encoding-mcp:
+    description: "Detect file encoding, convert between encodings, normalize unicode (NFC/NFD/NFKC/NFKD)."
+    title: "Encoding MCP"
+    type: "server"
+    image: "unraid-mcp/encoding-mcp:latest"
+    env:
+      - name: "ENCODING_PATH"
+        value: "{{encoding-mcp.encoding_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "encoding-mcp"
+        description: "Encoding server configuration"
+        type: "object"
+        properties:
+          encoding_path:
+            type: "string"
+            description: "Root path for files to analyze"
+            default: "/data"
+        required: []
+
+  markdown-mcp:
+    description: "Convert Markdown to HTML, strip to plain text, generate TOC, extract links and code blocks."
+    title: "Markdown MCP"
+    type: "server"
+    image: "unraid-mcp/markdown-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "markdown-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  # === DEV TOOLS ===
+  git-mcp:
+    description: "Git repository operations: status, log, diff, branches, commit info, blame."
+    title: "Git MCP"
+    type: "server"
+    image: "unraid-mcp/git-mcp:latest"
+    env:
+      - name: "GIT_REPO_PATH"
+        value: "{{git-mcp.repo_path}}"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "git-mcp"
+        description: "Git server configuration"
+        type: "object"
+        properties:
+          repo_path:
+            type: "string"
+            description: "Root path containing git repositories"
+            default: "/data"
+        required: []
+
+  ssl-mcp:
+    description: "SSL certificate info, expiry checking, certificate chain retrieval, CSR and self-signed cert generation."
+    title: "SSL MCP"
+    type: "server"
+    image: "unraid-mcp/ssl-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "ssl-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  # === UTILITIES ===
+  cron-mcp:
+    description: "Parse cron expressions, calculate next run times, validate cron syntax."
+    title: "Cron MCP"
+    type: "server"
+    image: "unraid-mcp/cron-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "cron-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  password-mcp:
+    description: "Generate secure passwords, analyze password strength with entropy and crack-time estimation, generate passphrases."
+    title: "Password MCP"
+    type: "server"
+    image: "unraid-mcp/password-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "password-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  uuid-mcp:
+    description: "Generate UUIDs (v4/v5/v7), validate, inspect version/variant, extract timestamps from time-based UUIDs."
+    title: "UUID MCP"
+    type: "server"
+    image: "unraid-mcp/uuid-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "uuid-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  sort-mcp:
+    description: "Sort, shuffle, sample, filter, deduplicate lines, and split text into chunks."
+    title: "Sort MCP"
+    type: "server"
+    image: "unraid-mcp/sort-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "sort-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  color-mcp:
+    description: "Convert between hex/RGB/HSL, blend colors, calculate WCAG contrast ratio, generate color schemes, random palettes."
+    title: "Color MCP"
+    type: "server"
+    image: "unraid-mcp/color-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "color-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  ipcalc-mcp:
+    description: "Subnet calculations, CIDR containment, IP to/from integer conversion, CIDR merging and host listing."
+    title: "IP Calc MCP"
+    type: "server"
+    image: "unraid-mcp/ipcalc-mcp:latest"
+    command:
+      - "--transport=stdio"
+    config:
+      - name: "ipcalc-mcp"
+        description: "No configuration required"
+        type: "object"
+        properties: {}
+        required: []
+
+  mempalace-mcp:
+    description: "Local-first AI memory palace. Mine projects and conversations into a searchable vector base with ChromaDB."
+    title: "MemPalace MCP"
+    type: "server"
+    image: "unraid-mcp/mempalace-mcp:latest"
+    env:
+      - name: "MEMPALACE_PALACE_PATH"
+        value: "/data/palace"
+    command:
+      - "mempalace-mcp"
+    config:
+      - name: "mempalace-mcp"
+        description: "MemPalace server configuration"
+        type: "object"
+        properties: {}
+        required: []

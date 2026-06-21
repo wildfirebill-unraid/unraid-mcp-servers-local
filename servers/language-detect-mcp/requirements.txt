@@ -1,0 +1,4 @@
+mcp
+pydantic
+anyio
+lingua-language-detector
