@@ -1,0 +1,54 @@
+name: Build & Push MCP Servers
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      servers:
+        description: 'Comma-separated server names to build (empty = all)'
+        required: false
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BASE: ghcr.io/wildfirebill-unraid/unraid-mcp-servers
+
+jobs:
+  list-servers:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          INPUT_SERVERS="${{ github.event.inputs.servers }}"
+          if [ -z "$INPUT_SERVERS" ]; then
+            SERVERS=$(ls -d servers/*/ | sed 's|servers/||;s|/||' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          else
+            SERVERS=$(echo "$INPUT_SERVERS" | jq -R -c 'split(",")')
+          fi
+          echo "matrix=$SERVERS" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: list-servers
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        server: ${{ fromJson(needs.list-servers.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./servers/${{ matrix.server }}
+          push: true
+          tags: ${{ env.IMAGE_BASE }}/${{ matrix.server }}:latest
