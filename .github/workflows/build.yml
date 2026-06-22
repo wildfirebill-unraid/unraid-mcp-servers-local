@@ -41,24 +41,23 @@ jobs:
 
       - name: Log in to GitHub Container Registry
         shell: bash
+        env:
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
         run: |
-          TOKEN="${{ secrets.GHCR_PAT }}"
-          if [ -z "$TOKEN" ]; then
-            echo "GHCR_PAT not set, falling back to GITHUB_TOKEN"
-            TOKEN="${{ secrets.GITHUB_TOKEN }}"
-          fi
+          TOKEN="${GHCR_PAT:-${{ secrets.GITHUB_TOKEN }}}"
           echo "$TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Remove orphaned package
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
         run: |
-          if [ -n "${{ secrets.GHCR_PAT }}" ]; then
+          TOKEN="${GHCR_PAT:-}"
+          if [ -n "$TOKEN" ]; then
             echo "Cleaning up orphaned ${{ matrix.server }} ..."
             ghcr_token=$(curl -s \
               "https://ghcr.io/token?service=ghcr.io&scope=repository:${{ github.repository }}/${{ matrix.server }}:delete,pull,push" \
-              -H "Authorization: Bearer $GH_TOKEN" | jq -r '.token // empty') 2>/dev/null || true
+              -H "Authorization: Bearer $TOKEN" | jq -r '.token // empty') 2>/dev/null || true
             if [ -n "$ghcr_token" ]; then
               digest=$(curl -s -I \
                 -H "Authorization: Bearer $ghcr_token" \
@@ -102,7 +101,7 @@ jobs:
       - name: Make package public
         if: github.event_name != 'pull_request'
         env:
-          GH_TOKEN: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pkg_name="ghcr.io%2F$(echo '${{ github.repository }}' | sed 's|/|%2F|g')%2F${{ matrix.server }}"
           echo "Making ${{ matrix.server }} public ..."
