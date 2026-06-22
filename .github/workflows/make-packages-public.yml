@@ -29,8 +29,8 @@ jobs:
             API_PREFIX="/user"
           fi
 
-          # Extract all server names from the catalog YAML
-          servers=$(grep -oP '^\s+\K[\w-]+(?=:)' unraid-catalog.yml | sort -u)
+          # Extract all server names from the filesystem
+          servers=$(ls -d servers/*/ | sed 's|servers/||;s|/||' | sort -u)
 
           total=$(echo "$servers" | wc -l)
           count=0
@@ -39,7 +39,7 @@ jobs:
           for server in $servers; do
             count=$((count + 1))
             # URL-encode the full package name
-            pkg_name="ghcr.io%2F${OWNER}%2Funraid-mcp-servers%2F${server}"
+            pkg_name="ghcr.io%2F${OWNER}%2F${{ github.event.repository.name }}%2F${server}"
             printf "[%d/%d] Making %s public ... " "$count" "$total" "$server"
 
             if gh api --method PATCH \
